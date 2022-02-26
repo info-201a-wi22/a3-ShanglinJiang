@@ -1,1 +1,127 @@
 
+---
+title: "Data Visualization (incarceration)"
+
+date: "2/24/2022"
+author: "Sean"
+output: html_document
+---
+# Data Visualization (incarceration)
+
+### Introduction 
+To know the population of each races in jail at Autauga County since 1970 to 2018, and 
+the proportion of different races between 1990 to 2018. I created variables to compute
+proportion of different races. I uses the sum of totoal people from 15 to 64 years old
+in jail every years, and sum of total population from 15 to 64 years old of different 
+races. Than I divided those two data, I got the proportion of differentraces in jail.
+
+|Racial population | Proportion|
+|----|----|
+|Asian American / Pacific Islander Population Count:| 0.93%|
+|Black Population Count:| 18.15%|
+|Latinx Population Count:| 1.82%|
+|Native American Population Count:| 0.42%|
+|White Population Count:| 78.68%|
+
+```{r echo=FALSE, warning=FALSE}
+incarceration <- read.csv(file = 'https://raw.githubusercontent.com/vera-institute/incarceration-trends/master/incarceration_trends.csv')
+head(incarceration)
+View(incarceration)
+
+
+library(dplyr)
+sum_1970_2018 <- with(incarceration, sum(total_pop[fips == '1001']))
+AL <- filter(incarceration, fips == '1001')
+annual_pop_AL <- AL[ , c(6)] 
+sum_1990_2018 <- with(incarceration, sum(total_pop[fips == '1001' & year > '1989']))
+sum_1990_2018_15to64 <- with(incarceration, sum(total_pop_15to64[fips == '1001' & year > '1989']))
+sum_aapi_1990_2018_15to64 <- with(incarceration, sum(aapi_pop_15to64[fips == '1001' & year > '1989']))
+sum_black_1990_2018_15to64 <- with(incarceration, sum(black_pop_15to64[fips == '1001' & year > '1989']))
+sum_latinx_1990_2018_15to64 <- with(incarceration, sum(latinx_pop_15to64[fips == '1001' & year > '1989']))
+sum_native_1990_2018_15to64 <- with(incarceration, sum(native_pop_15to64[fips == '1001' & year > '1989']))
+sum_white_1990_2018_15to64 <- with(incarceration, sum(white_pop_15to64[fips == '1001' & year > '1989']))
+
+prop_aapi_1990_2018 <- (sum_aapi_1990_2018_15to64 / sum_1990_2018_15to64)
+prop_black_1990_2018 <- (sum_black_1990_2018_15to64 / sum_1990_2018_15to64)
+prop_latinx_1990_2018 <- (sum_latinx_1990_2018_15to64 / sum_1990_2018_15to64)
+prop_native_1990_2018 <- (sum_native_1990_2018_15to64 / sum_1990_2018_15to64)
+prop_white_1990_2018 <- (sum_white_1990_2018_15to64 / sum_1990_2018_15to64)
+```
+
+### Trends over time charts
+So in chart one, I use a line plot to show how does population changes annually
+between different races, and I use different colors to represent different races.
+In the chart, the blue line shows the population from 15 to 64 in jail, white line
+represent white people, black line represents black people, yellow line represents
+Asian and pacific islander, brown represent latinx, gray represent native Americans.
+Why I chose line plot to show the data is because, through the chart we can see 
+clrealy, since 1990, the population of every race are increases, Whites are the 
+largest racial group in prison.
+
+```{r echo=FALSE, warning=FALSE}
+library(ggplot2)
+incarceration <- read.csv(file = 'https://raw.githubusercontent.com/vera-institute/incarceration-trends/master/incarceration_trends.csv')
+head(incarceration)
+View(incarceration)
+sum_1970_2018 <- with(incarceration, sum(total_pop[fips == '1001']))
+AL <- filter(incarceration, fips == '1001')
+annual_pop_AL <- AL[ , c(6)] 
+  p_line=ggplot(AL)+
+    geom_line(aes(x=AL[,2],y=AL[,6]),color="red")+
+    geom_line(aes(x=AL[,2],y=AL[,7]),color="blue")+
+    geom_line(aes(x=AL[,2],y=AL[,10]),color="yellow")+
+    geom_line(aes(x=AL[,2],y=AL[,11]),color="black")+
+    geom_line(aes(x=AL[,2],y=AL[,12]),color="brown")+
+    geom_line(aes(x=AL[,2],y=AL[,13]),color="gray")+
+    geom_line(aes(x=AL[,2],y=AL[,14]),color="white")
+  p_line
+  p_line +xlab("Years")+
+    ylab("Population in jail")+
+    ggtitle('Population changes in jail') 
+```
+
+### Comparison
+In chart two, I also use a line plot to show the comparison of populasion in 
+jail between Asian& Pacific Islander American and native Americans. Because
+I found that in chart one, the population between these two races are close.
+So I do the chart two to compare this. Yellow represent Asian and Islander 
+Americans, gray represent Native Americans. Through the graph we know that
+the Asian and Islander Americans keep increase, and the Native Americans increase
+in 1990 to 2000 and after 2000 it is relatively stable. The data is change around
+150 every year.
+```{r echo=FALSE, warning=FALSE}
+  p_line_2=ggplot(AL)+
+    geom_line(aes(x=AL[,2],y=AL[,10]),color="yellow")+
+    geom_line(aes(x=AL[,2],y=AL[,13]),color="gray")
+  p_line_2
+  p_line_2 +xlab("Years")+
+    ylab("Population in jail")+
+    ggtitle('Comparison of prison population of Asian&Islander and Native') 
+```
+
+
+
+
+
+
+### Mapping
+
+```{r echo=FALSE, warning=FALSE}
+  library(maps)
+  library(tmap) 
+  library(leaflet) 
+  library(ggplot2) 
+  library(dplyr)
+  library(tidyverse)
+  library(ggmap)
+  
+map <- get_stamenmap(
+    bbox = c(left = -87.4141, bottom = 32.0640, right = -85.9172, top = 32.9499),
+    maptype = "toner",
+    zoom = 10
+  )
+  
+ggmap(map)
+```
+
+
